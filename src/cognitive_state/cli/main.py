@@ -7,12 +7,19 @@ import csv
 from pathlib import Path
 import sys
 
+import torch
+
 from cognitive_state import __version__
 from cognitive_state.data.constants import SCORE_CSV_COLUMNS
-from cognitive_state.data.exceptions import ValidationError, WindowShapeError
+from cognitive_state.data.dataset import WindowDataset
+from cognitive_state.data.exceptions import LabelError, ValidationError, WindowShapeError
 from cognitive_state.data.feature_csv import read_feature_csv, write_feature_csv
 from cognitive_state.data.schemas import ModelPrediction
-from cognitive_state.data.windowing import WINDOW_FEATURE_COLUMNS
+from cognitive_state.data.synthetic_labels import (
+    SYNTHETIC_LABEL_WARNING,
+    generate_synthetic_labels,
+)
+from cognitive_state.data.windowing import WINDOW_FEATURE_COLUMNS, build_windows
 from cognitive_state.features.export import (
     FeatureExportError,
     FeatureExportSummary,
@@ -27,6 +34,8 @@ from cognitive_state.inference import (
     load_model,
     run_inference,
 )
+from cognitive_state.training.batching import collate_batch
+from cognitive_state.training.metrics import SMOKE_METRIC_WARNING, compute_mae, compute_rmse
 from cognitive_state.video import VideoSourceError
 
 _ASSUME_FPS: float = 30.0
@@ -118,6 +127,47 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     # ------------------------------------------------------------------
+    # smoke-train subcommand
+    # ------------------------------------------------------------------
+    train_parser = subparsers.add_parser(
+        "smoke-train",
+        help="Run a minimal smoke-training flow to validate data and model contracts.",
+    )
+    train_parser.add_argument(
+        "--features-csv",
+        dest="features_csv",
+        required=True,
+        metavar="PATH",
+        help="Feature CSV produced by extract-features.",
+    )
+    label_group = train_parser.add_mutually_exclusive_group()
+    label_group.add_argument(
+        "--synthetic-labels",
+        dest="synthetic_labels",
+        action="store_true",
+        help="Generate synthetic/demo labels for smoke-training (not scientifically valid).",
+    )
+    label_group.add_argument(
+        "--labels-csv",
+        dest="labels_csv",
+        metavar="PATH",
+        help="[reserved] Load real or prepared window-level labels from CSV.",
+    )
+    train_parser.add_argument(
+        "--epochs",
+        type=int,
+        default=1,
+        metavar="N",
+        help="Number of smoke-training epochs (default: 1).",
+    )
+    train_parser.add_argument(
+        "--checkpoint-out",
+        dest="checkpoint_out",
+        metavar="PATH",
+        help="Optional path to save the smoke-training checkpoint.",
+    )
+
+    # ------------------------------------------------------------------
     # extract-features subcommand
     # ------------------------------------------------------------------
     extract_parser = subparsers.add_parser(
@@ -154,6 +204,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "infer":
         return _run_infer(args)
+    if args.command == "smoke-train":
+        return _run_smoke_train(args)
     if args.command == "extract-features":
         return _run_extract_features(args)
     return 0
@@ -303,6 +355,93 @@ def _write_scores_csv(predictions: list[ModelPrediction], path: Path) -> None:
                 "stress": p.scores.stress,
                 "engagement": p.scores.engagement,
             })
+
+
+# ------------------------------------------------------------------
+# smoke-train helpers
+# ------------------------------------------------------------------
+
+def _run_smoke_train(args: argparse.Namespace) -> int:
+    if not args.synthetic_labels and not args.labels_csv:
+        print(
+            "error: provide --synthetic-labels or --labels-csv.",
+            file=sys.stderr,
+        )
+        return 2
+
+    # --- load feature rows ---
+    try:
+        rows = read_feature_csv(args.features_csv)
+    except OSError as exc:
+        print(f"features-csv: {exc}", file=sys.stderr)
+        return 2
+
+    if not rows:
+        print("error: no feature rows found in CSV.", file=sys.stderr)
+        return 2
+
+    # --- build windows ---
+    try:
+        batch = build_windows(
+            rows,
+            window_size=DEFAULT_WINDOW_SIZE,
+            stride=DEFAULT_STRIDE,
+        )
+    except (WindowShapeError, ValidationError) as exc:
+        print(f"windows: {exc}", file=sys.stderr)
+        return 2
+
+    n_windows = batch.n_windows
+
+    # --- labels ---
+    if args.synthetic_labels:
+        print(f"warning: {SYNTHETIC_LABEL_WARNING}", file=sys.stderr)
+        labels = generate_synthetic_labels(n_windows, seed=0)
+        label_source = "synthetic"
+    else:
+        print("error: --labels-csv is not yet supported.", file=sys.stderr)
+        return 2
+
+    try:
+        dataset = WindowDataset(batch.features, labels, label_source=label_source)
+    except (LabelError, ValidationError) as exc:
+        print(f"dataset: {exc}", file=sys.stderr)
+        return 2
+
+    # --- model forward pass (shape / smoke validation) ---
+    model = load_model(input_features=len(WINDOW_FEATURE_COLUMNS))
+    samples = list(dataset)
+    x, y = collate_batch(samples)
+
+    model.eval()
+    with torch.no_grad():
+        pred = model(x)
+
+    mae = compute_mae(pred, y)
+    rmse = compute_rmse(pred, y)
+
+    print(f"smoke-train complete")
+    print(f"  samples:      {n_windows}")
+    print(f"  input shape:  {tuple(x.shape)}")
+    print(f"  output shape: {tuple(pred.shape)}")
+    print(
+        f"  MAE   (fatigue/attention/stress/engagement): "
+        + "  ".join(f"{v:.4f}" for v in mae.tolist())
+    )
+    print(
+        f"  RMSE  (fatigue/attention/stress/engagement): "
+        + "  ".join(f"{v:.4f}" for v in rmse.tolist())
+    )
+    print(f"note: {SMOKE_METRIC_WARNING}")
+
+    # --- optional checkpoint ---
+    if args.checkpoint_out:
+        out = Path(args.checkpoint_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        torch.save(model.state_dict(), out)
+        print(f"checkpoint saved to {out}")
+
+    return 0
 
 
 # ------------------------------------------------------------------

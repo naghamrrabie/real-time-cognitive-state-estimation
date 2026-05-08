@@ -135,7 +135,7 @@ smoke metrics marked as non-scientific.
 - [X] T046 [P] [US3] Create synthetic label generation tests in `tests/unit/test_synthetic_labels.py`
 - [X] T047 [P] [US3] Create training batch shape tests in `tests/unit/test_training_batches.py`
 - [X] T048 [P] [US3] Create evaluation metric tests for MAE, RMSE, R2, and Pearson correlation in `tests/unit/test_metrics.py`
-- [ ] T049 [US3] Create CLI smoke-training integration test in `tests/integration/test_smoke_train_cli.py`
+- [X] T049 [US3] Create CLI smoke-training integration test in `tests/integration/test_smoke_train_cli.py`
 
 ### Implementation for User Story 3
 
