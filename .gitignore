@@ -22,6 +22,26 @@ env/
 .env.*
 artifacts/*
 !artifacts/.gitignore
+outputs/
+checkpoints/
+models/
+
+# Model and checkpoint files
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# Video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Generated data
+data/raw/
+data/processed/
 
 # Editors and OS files
 .DS_Store
