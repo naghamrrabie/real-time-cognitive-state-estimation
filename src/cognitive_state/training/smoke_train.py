@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import torch
 import torch.nn as nn
@@ -12,7 +13,6 @@ from cognitive_state.data.dataset import WindowDataset
 from cognitive_state.data.synthetic_labels import (
     PLACEHOLDER_LABEL_SOURCE,
     SYNTHETIC_LABEL_SOURCE,
-    SYNTHETIC_LABEL_WARNING,
 )
 from cognitive_state.data.windowing import WINDOW_FEATURE_COLUMNS
 from cognitive_state.models.transformer import TemporalTransformer
@@ -22,6 +22,9 @@ from cognitive_state.training.metrics import (
     compute_mae,
     compute_rmse,
 )
+
+if TYPE_CHECKING:
+    pass
 
 _SMOKE_LABEL_SOURCES: frozenset[str] = frozenset(
     {SYNTHETIC_LABEL_SOURCE, PLACEHOLDER_LABEL_SOURCE}
@@ -41,6 +44,9 @@ class SmokeTrainResult:
             labels are used; empty string otherwise.
         mae: Per-score MAE tensor of shape ``(4,)`` evaluated after training.
         rmse: Per-score RMSE tensor of shape ``(4,)`` evaluated after training.
+        input_shape: Shape of the feature batch tensor ``(n, window_size, feature_dim)``.
+        output_shape: Shape of the prediction tensor ``(n, 4)``.
+        model: The trained ``TemporalTransformer`` (excluded from repr).
     """
 
     final_loss: float
@@ -50,6 +56,9 @@ class SmokeTrainResult:
     warning: str
     mae: Tensor
     rmse: Tensor
+    input_shape: tuple[int, ...] = field(default_factory=tuple)
+    output_shape: tuple[int, ...] = field(default_factory=tuple)
+    model: nn.Module | None = field(default=None, repr=False)
 
 
 def run_smoke_train(
@@ -75,8 +84,8 @@ def run_smoke_train(
         seed: Manual seed for reproducibility.
 
     Returns:
-        :class:`SmokeTrainResult` with loss, epoch count, shapes, and
-        per-score MAE/RMSE.
+        :class:`SmokeTrainResult` with loss, epoch count, shapes,
+        per-score MAE/RMSE, and the trained model.
     """
     torch.manual_seed(seed)
 
@@ -104,7 +113,6 @@ def run_smoke_train(
         final_loss = loss.item()
         last_pred = pred.detach()
 
-    # Evaluate metrics on the final prediction (no grad needed)
     model.eval()
     if last_pred is None:
         with torch.no_grad():
@@ -127,4 +135,7 @@ def run_smoke_train(
         warning=warning,
         mae=mae,
         rmse=rmse,
+        input_shape=tuple(x.shape),
+        output_shape=tuple(last_pred.shape),
+        model=model,
     )

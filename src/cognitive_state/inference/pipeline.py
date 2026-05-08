@@ -39,8 +39,11 @@ def load_model(
     """
     model = TemporalTransformer(input_features=input_features, **model_kwargs)
     if checkpoint_path is not None:
-        state = torch.load(Path(checkpoint_path), map_location="cpu")
-        model.load_state_dict(state)
+        data = torch.load(Path(checkpoint_path), map_location="cpu")
+        # Support both wrapped format {"model_state_dict": ...} and bare state_dict
+        if isinstance(data, dict) and "model_state_dict" in data:
+            data = data["model_state_dict"]
+        model.load_state_dict(data)
     model.eval()
     return model
 

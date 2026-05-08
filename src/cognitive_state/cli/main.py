@@ -34,8 +34,9 @@ from cognitive_state.inference import (
     load_model,
     run_inference,
 )
-from cognitive_state.training.batching import collate_batch
-from cognitive_state.training.metrics import SMOKE_METRIC_WARNING, compute_mae, compute_rmse
+from cognitive_state.training.checkpoints import save_checkpoint
+from cognitive_state.training.metrics import SMOKE_METRIC_WARNING
+from cognitive_state.training.smoke_train import run_smoke_train
 from cognitive_state.video import VideoSourceError
 
 _ASSUME_FPS: float = 30.0
@@ -408,38 +409,38 @@ def _run_smoke_train(args: argparse.Namespace) -> int:
         print(f"dataset: {exc}", file=sys.stderr)
         return 2
 
-    # --- model forward pass (shape / smoke validation) ---
-    model = load_model(input_features=len(WINDOW_FEATURE_COLUMNS))
-    samples = list(dataset)
-    x, y = collate_batch(samples)
+    # --- run smoke training with real backpropagation ---
+    result = run_smoke_train(dataset, epochs=args.epochs)
 
-    model.eval()
-    with torch.no_grad():
-        pred = model(x)
-
-    mae = compute_mae(pred, y)
-    rmse = compute_rmse(pred, y)
-
-    print(f"smoke-train complete")
-    print(f"  samples:      {n_windows}")
-    print(f"  input shape:  {tuple(x.shape)}")
-    print(f"  output shape: {tuple(pred.shape)}")
+    print("smoke-train complete")
+    print(f"  samples:      {result.n_samples}")
+    print(f"  input shape:  {result.input_shape}")
+    print(f"  output shape: {result.output_shape}")
+    print(f"  final loss:   {result.final_loss:.6f}")
     print(
-        f"  MAE   (fatigue/attention/stress/engagement): "
-        + "  ".join(f"{v:.4f}" for v in mae.tolist())
+        "  MAE   (fatigue/attention/stress/engagement): "
+        + "  ".join(f"{v:.4f}" for v in result.mae.tolist())
     )
     print(
-        f"  RMSE  (fatigue/attention/stress/engagement): "
-        + "  ".join(f"{v:.4f}" for v in rmse.tolist())
+        "  RMSE  (fatigue/attention/stress/engagement): "
+        + "  ".join(f"{v:.4f}" for v in result.rmse.tolist())
     )
     print(f"note: {SMOKE_METRIC_WARNING}")
 
     # --- optional checkpoint ---
-    if args.checkpoint_out:
-        out = Path(args.checkpoint_out)
-        out.parent.mkdir(parents=True, exist_ok=True)
-        torch.save(model.state_dict(), out)
-        print(f"checkpoint saved to {out}")
+    if args.checkpoint_out and result.model is not None:
+        try:
+            saved = save_checkpoint(
+                result.model,
+                args.checkpoint_out,
+                feature_dim=len(WINDOW_FEATURE_COLUMNS),
+                label_source=label_source,
+                window_size=DEFAULT_WINDOW_SIZE,
+            )
+            print(f"checkpoint saved to {saved}")
+        except OSError as exc:
+            print(f"checkpoint-out: {exc}", file=sys.stderr)
+            return 2
 
     return 0
 

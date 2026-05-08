@@ -144,8 +144,8 @@ smoke metrics marked as non-scientific.
 - [X] T052 [US3] Implement training batch collation for grouped modalities in `src/cognitive_state/training/batching.py`
 - [X] T053 [US3] Implement smoke-training loop for Temporal Transformer regression in `src/cognitive_state/training/smoke_train.py`
 - [X] T054 [US3] Implement evaluation metrics with synthetic-label warnings in `src/cognitive_state/training/metrics.py`
-- [ ] T055 [US3] Implement checkpoint save/load helpers for smoke artifacts in `src/cognitive_state/training/checkpoints.py`
-- [ ] T056 [US3] Implement `cognitive-state smoke-train` CLI command in `src/cognitive_state/cli/main.py`
+- [X] T055 [US3] Implement checkpoint save/load helpers for smoke artifacts in `src/cognitive_state/training/checkpoints.py`
+- [X] T056 [US3] Implement `cognitive-state smoke-train` CLI command in `src/cognitive_state/cli/main.py`
 
 **Checkpoint**: US3 is complete when the smoke-training flow validates shapes,
 score ranges, and metrics without claiming real cognitive-state accuracy.
