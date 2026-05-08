@@ -7,7 +7,7 @@
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+[Extract from feature spec: primary requirement + technical/research approach]
 
 ## Technical Context
 
@@ -17,21 +17,35 @@
   the iteration process.
 -->
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python [version, e.g., 3.11+ or NEEDS CLARIFICATION]
+**Primary Dependencies**: MediaPipe, PyTorch, [NumPy/OpenCV/etc. as needed]
+**Storage**: [datasets/artifacts/config files or N/A]
+**Testing**: pytest [plus any model/evaluation validation tools]
+**Target Platform**: [desktop/laptop webcam, recorded video, OS constraints, or NEEDS CLARIFICATION]
+**Project Type**: Python research package with inference/training modules
+**Performance Goals**: [target FPS/latency for real-time scoring or NEEDS CLARIFICATION]
+**Constraints**: Continuous Fatigue/Attention/Stress/Engagement regression; MediaPipe landmarks; PyTorch Temporal Transformer Encoder primary model; modular code
+**Scale/Scope**: MVP end-to-end pipeline first, then research extensions
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- **Research-first modularity**: Plan separates video/input, MediaPipe landmark
+  extraction, multimodal features, temporal windowing, PyTorch model, inference,
+  and evaluation modules.
+- **Python stack**: Plan uses Python, MediaPipe for face/pose landmarks, and
+  PyTorch for trainable temporal modeling.
+- **Multimodal features**: Plan identifies eyes, face, head pose, and posture
+  signals affected by the feature, or justifies why a modality is unchanged.
+- **Transformer regression**: Main model remains a Temporal Transformer Encoder
+  and outputs continuous Fatigue, Attention, Stress, and Engagement scores.
+  LSTM/RNN models are documented only as baselines or ablations.
+- **MVP-first delivery**: Plan preserves the smallest end-to-end scoring path
+  before research extensions.
+- **Testability**: Plan includes tests or validation tasks for feature shapes,
+  missing landmarks, temporal batching, model I/O contracts, and score schema
+  where the feature touches those areas.
 
 ## Project Structure
 
@@ -39,56 +53,37 @@
 
 ```text
 specs/[###-feature]/
-├── plan.md              # This file (/speckit-plan command output)
-├── research.md          # Phase 0 output (/speckit-plan command)
-├── data-model.md        # Phase 1 output (/speckit-plan command)
-├── quickstart.md        # Phase 1 output (/speckit-plan command)
-├── contracts/           # Phase 1 output (/speckit-plan command)
-└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
+  plan.md              # This file (/speckit-plan command output)
+  research.md          # Phase 0 output (/speckit-plan command)
+  data-model.md        # Phase 1 output (/speckit-plan command)
+  quickstart.md        # Phase 1 output (/speckit-plan command)
+  contracts/           # Phase 1 output (/speckit-plan command)
+  tasks.md             # Phase 2 output (/speckit-tasks command)
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
+  for this feature. Add or remove modules only when the plan justifies it.
 -->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+  cognitive_state_estimation/
+    input/          # webcam/video readers and frame timing
+    landmarks/      # MediaPipe face/pose extraction
+    features/       # eyes, face, head pose, posture features
+    sequences/      # temporal windows and batching
+    models/         # PyTorch Temporal Transformer Encoder and baselines
+    inference/      # real-time score emission
+    evaluation/     # metrics, validation, experiment reports
+    config/         # reproducible configs and artifact naming
 
 tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+  unit/
+  integration/
+  fixtures/
 ```
 
 **Structure Decision**: [Document the selected structure and reference the real
@@ -100,5 +95,5 @@ directories captured above]
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| [e.g., non-MediaPipe landmarking] | [current need] | [why MediaPipe baseline is insufficient] |
+| [e.g., recurrent primary model] | [specific problem] | [why transformer-first modeling cannot satisfy it] |

@@ -1,4 +1,6 @@
 <!-- SPECKIT START -->
-For additional context about technologies to be used, project structure,
-shell commands, and other important information, read the current plan
+Read `.specify/memory/constitution.md` before creating or changing project
+artifacts. For the active feature, read
+`specs/001-cognitive-state-estimation/plan.md` for project structure,
+technology choices, shell commands, and implementation constraints.
 <!-- SPECKIT END -->
