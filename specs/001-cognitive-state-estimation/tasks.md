@@ -79,8 +79,8 @@ between 0.00 and 1.00.
 - [X] T027 [US1] Implement head pose and posture proxy feature calculations in `src/cognitive_state/features/posture.py`
 - [X] T028 [US1] Implement multimodal feature extraction orchestrator with missing-value markers in `src/cognitive_state/features/pipeline.py`
 - [X] T029 [US1] Implement temporal feature window builder for inference windows in `src/cognitive_state/data/windowing.py`
-- [ ] T030 [US1] Implement attention-based or modular modality fusion layer in `src/cognitive_state/models/fusion.py`
-- [ ] T031 [US1] Implement Temporal Transformer Encoder regression model with four-score output in `src/cognitive_state/models/transformer.py`
+- [X] T030 [US1] Implement attention-based or modular modality fusion layer in `src/cognitive_state/models/fusion.py`
+- [X] T031 [US1] Implement Temporal Transformer Encoder regression model with four-score output in `src/cognitive_state/models/transformer.py`
 - [ ] T032 [US1] Implement score bounding and prediction formatting in `src/cognitive_state/inference/scoring.py`
 - [ ] T033 [US1] Implement end-to-end inference pipeline from source to console-ready predictions in `src/cognitive_state/inference/pipeline.py`
 - [ ] T034 [US1] Implement console score table/stream formatter in `src/cognitive_state/inference/output.py`
