@@ -8,6 +8,7 @@ import torch
 
 from cognitive_state.data.feature_csv import read_feature_csv
 from cognitive_state.data.schemas import ModelPrediction
+from cognitive_state.data.score_csv import write_score_csv
 from cognitive_state.data.windowing import FeatureWindowBatch, build_windows
 from cognitive_state.inference.scoring import predictions_from_batch
 from cognitive_state.models.transformer import TemporalTransformer
@@ -101,6 +102,7 @@ def run_inference_from_csv(
     window_size: int = DEFAULT_WINDOW_SIZE,
     stride: int = DEFAULT_STRIDE,
     model_id: str = "",
+    scores_csv_path: str | Path | None = None,
 ) -> list[ModelPrediction]:
     """Run inference on feature rows loaded from a CSV file.
 
@@ -110,11 +112,15 @@ def run_inference_from_csv(
         window_size: Number of frames per temporal window.
         stride: Frame advance between consecutive windows.
         model_id: Optional identifier written to each ``ModelPrediction``.
+        scores_csv_path: If provided, write score predictions to this CSV path.
 
     Returns:
         List of ``ModelPrediction`` objects, one per temporal window.
     """
     rows = read_feature_csv(csv_path)
-    return run_inference(
+    predictions = run_inference(
         rows, model, window_size=window_size, stride=stride, model_id=model_id
     )
+    if scores_csv_path is not None:
+        write_score_csv(predictions, scores_csv_path)
+    return predictions

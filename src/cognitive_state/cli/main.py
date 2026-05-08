@@ -3,18 +3,14 @@
 from __future__ import annotations
 
 import argparse
-import csv
 from pathlib import Path
 import sys
 
-import torch
-
 from cognitive_state import __version__
-from cognitive_state.data.constants import SCORE_CSV_COLUMNS
 from cognitive_state.data.dataset import WindowDataset
 from cognitive_state.data.exceptions import LabelError, ValidationError, WindowShapeError
 from cognitive_state.data.feature_csv import read_feature_csv, write_feature_csv
-from cognitive_state.data.schemas import ModelPrediction
+from cognitive_state.data.score_csv import write_score_csv
 from cognitive_state.data.synthetic_labels import (
     SYNTHETIC_LABEL_WARNING,
     generate_synthetic_labels,
@@ -100,7 +96,13 @@ def build_parser() -> argparse.ArgumentParser:
     infer_parser.add_argument(
         "--plot",
         action="store_true",
-        help="[not yet available] Show score-over-time plot after inference.",
+        help="Generate a score-over-time plot after inference (requires --plot-out).",
+    )
+    infer_parser.add_argument(
+        "--plot-out",
+        dest="plot_out",
+        metavar="PATH",
+        help="Path to save the score-over-time plot as a PNG image.",
     )
     infer_parser.add_argument(
         "--window-seconds",
@@ -169,6 +171,35 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     # ------------------------------------------------------------------
+    # plot-scores subcommand
+    # ------------------------------------------------------------------
+    plot_parser = subparsers.add_parser(
+        "plot-scores",
+        help="Generate a score-over-time plot from a previously saved scores CSV.",
+    )
+    plot_parser.add_argument(
+        "--scores-csv",
+        dest="scores_csv",
+        required=True,
+        metavar="PATH",
+        help="Scores CSV produced by `cognitive-state infer --scores-csv`.",
+    )
+    plot_parser.add_argument(
+        "--output",
+        dest="output",
+        required=True,
+        metavar="PATH",
+        help="Output PNG path for the score-over-time plot.",
+    )
+    plot_parser.add_argument(
+        "--title",
+        dest="title",
+        default="Cognitive State Scores Over Time",
+        metavar="TEXT",
+        help="Plot title (default: 'Cognitive State Scores Over Time').",
+    )
+
+    # ------------------------------------------------------------------
     # extract-features subcommand
     # ------------------------------------------------------------------
     extract_parser = subparsers.add_parser(
@@ -209,6 +240,8 @@ def main(argv: list[str] | None = None) -> int:
         return _run_smoke_train(args)
     if args.command == "extract-features":
         return _run_extract_features(args)
+    if args.command == "plot-scores":
+        return _run_plot_scores(args)
     return 0
 
 
@@ -228,8 +261,11 @@ def _run_infer(args: argparse.Namespace) -> int:
         )
         return 2
 
-    if args.plot:
-        print("warning: --plot is not yet available; option ignored.", file=sys.stderr)
+    if args.plot and not getattr(args, "plot_out", None):
+        print(
+            "warning: --plot requires --plot-out PATH; no plot will be generated.",
+            file=sys.stderr,
+        )
 
     if not args.checkpoint:
         print(
@@ -306,9 +342,19 @@ def _run_infer(args: argparse.Namespace) -> int:
     # --- optional scores CSV ---
     if args.scores_csv:
         try:
-            _write_scores_csv(predictions, Path(args.scores_csv))
+            write_score_csv(predictions, Path(args.scores_csv))
         except OSError as exc:
             print(f"scores-csv: {exc}", file=sys.stderr)
+            return 2
+
+    # --- optional plot ---
+    if args.plot and getattr(args, "plot_out", None):
+        try:
+            from cognitive_state.inference.plotting import plot_scores
+            saved = plot_scores(predictions, args.plot_out)
+            print(f"plot saved to {saved}")
+        except Exception as exc:
+            print(f"plot: {exc}", file=sys.stderr)
             return 2
 
     return 0
@@ -340,22 +386,6 @@ def _estimate_fps(rows: list[dict[str, float | int]]) -> float:
     if duration <= 0.0:
         return _ASSUME_FPS
     return (len(rows) - 1) / duration
-
-
-def _write_scores_csv(predictions: list[ModelPrediction], path: Path) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=list(SCORE_CSV_COLUMNS))
-        writer.writeheader()
-        for p in predictions:
-            writer.writerow({
-                "timestamp_seconds": p.timestamp_seconds,
-                "source_progress": p.source_progress,
-                "fatigue": p.scores.fatigue,
-                "attention": p.scores.attention,
-                "stress": p.scores.stress,
-                "engagement": p.scores.engagement,
-            })
 
 
 # ------------------------------------------------------------------
@@ -442,6 +472,51 @@ def _run_smoke_train(args: argparse.Namespace) -> int:
             print(f"checkpoint-out: {exc}", file=sys.stderr)
             return 2
 
+    return 0
+
+
+# ------------------------------------------------------------------
+# plot-scores helpers
+# ------------------------------------------------------------------
+
+def _run_plot_scores(args: argparse.Namespace) -> int:
+    from cognitive_state.data.score_csv import read_score_csv
+    from cognitive_state.data.schemas import CognitiveScoreVector, ModelPrediction
+    from cognitive_state.inference.plotting import plot_scores
+
+    scores_path = Path(args.scores_csv)
+    if not scores_path.exists():
+        print(f"scores-csv: file not found: {scores_path}", file=sys.stderr)
+        return 2
+
+    try:
+        rows = read_score_csv(scores_path)
+    except Exception as exc:
+        print(f"scores-csv: {exc}", file=sys.stderr)
+        return 2
+
+    predictions = [
+        ModelPrediction(
+            window_id=f"w{i}",
+            timestamp_seconds=float(row["timestamp_seconds"]),
+            scores=CognitiveScoreVector(
+                fatigue=float(row["fatigue"]),
+                attention=float(row["attention"]),
+                stress=float(row["stress"]),
+                engagement=float(row["engagement"]),
+            ),
+            source_progress=str(row.get("source_progress", "")),
+        )
+        for i, row in enumerate(rows)
+    ]
+
+    try:
+        saved = plot_scores(predictions, args.output, title=args.title)
+    except Exception as exc:
+        print(f"plot: {exc}", file=sys.stderr)
+        return 2
+
+    print(f"plot saved to {saved}")
     return 0
 
 

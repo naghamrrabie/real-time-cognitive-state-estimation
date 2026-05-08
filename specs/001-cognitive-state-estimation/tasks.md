@@ -162,18 +162,18 @@ confirm CSV columns and plot output contain all four score series.
 
 ### Tests for User Story 4
 
-- [ ] T057 [P] [US4] Create score CSV writer tests in `tests/unit/test_score_csv.py`
-- [ ] T058 [P] [US4] Create score plot generation tests in `tests/unit/test_plot_scores.py`
-- [ ] T059 [US4] Create inference export integration test in `tests/integration/test_score_exports.py`
-- [ ] T060 [US4] Create CLI contract test for `cognitive-state plot-scores` in `tests/integration/test_plot_scores_cli.py`
+- [X] T057 [P] [US4] Create score CSV writer tests in `tests/unit/test_score_csv.py`
+- [X] T058 [P] [US4] Create score plot generation tests in `tests/unit/test_plot_scores.py`
+- [X] T059 [US4] Create inference export integration test in `tests/integration/test_score_exports.py`
+- [X] T060 [US4] Create CLI contract test for `cognitive-state plot-scores` in `tests/integration/test_plot_scores_cli.py`
 
 ### Implementation for User Story 4
 
-- [ ] T061 [US4] Implement score CSV writer and schema validation in `src/cognitive_state/data/score_csv.py`
-- [ ] T062 [US4] Integrate optional score CSV output into `src/cognitive_state/inference/pipeline.py`
-- [ ] T063 [US4] Implement score-over-time plotting in `src/cognitive_state/inference/plotting.py`
-- [ ] T064 [US4] Implement `--plot` option for `cognitive-state infer` in `src/cognitive_state/cli/main.py`
-- [ ] T065 [US4] Implement `cognitive-state plot-scores` CLI command in `src/cognitive_state/cli/main.py`
+- [X] T061 [US4] Implement score CSV writer and schema validation in `src/cognitive_state/data/score_csv.py`
+- [X] T062 [US4] Integrate optional score CSV output into `src/cognitive_state/inference/pipeline.py`
+- [X] T063 [US4] Implement score-over-time plotting in `src/cognitive_state/inference/plotting.py`
+- [X] T064 [US4] Implement `--plot` option for `cognitive-state infer` in `src/cognitive_state/cli/main.py`
+- [X] T065 [US4] Implement `cognitive-state plot-scores` CLI command in `src/cognitive_state/cli/main.py`
 
 **Checkpoint**: US4 is complete when score CSV and plot artifacts are optional,
 schema-valid, and never required for the core console inference workflow.
