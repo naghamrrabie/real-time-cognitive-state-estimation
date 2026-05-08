@@ -10,6 +10,8 @@ import pytest
 
 from cognitive_state.data.constants import SCORE_CSV_COLUMNS
 from cognitive_state.data.feature_csv import FEATURE_CSV_COLUMNS
+from cognitive_state.data.schemas import CognitiveScoreVector, ModelPrediction
+from cognitive_state.inference.live_preview import LivePreviewResult
 
 cli_module = import_module("cognitive_state.cli.main")
 
@@ -103,6 +105,17 @@ def test_infer_plot_flag_emits_warning_and_exits_zero(tmp_path: Path, capsys) ->
     assert "plot" in captured.err.lower()
 
 
+def test_infer_preview_requires_webcam(tmp_path: Path, capsys) -> None:
+    csv_path = tmp_path / "features.csv"
+    _write_synthetic_features_csv(csv_path)
+    exit_code = cli_module.main(
+        ["infer", "--features-csv", str(csv_path), "--preview"]
+    )
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert "--preview" in captured.err
+
+
 # ---------------------------------------------------------------------------
 # --scores-csv output
 # ---------------------------------------------------------------------------
@@ -160,6 +173,58 @@ def test_infer_max_windows_limits_score_lines(tmp_path: Path, capsys) -> None:
     captured = capsys.readouterr()
     score_lines = [ln for ln in captured.out.splitlines() if "fatigue=" in ln]
     assert len(score_lines) == 1
+
+
+def test_infer_webcam_preview_dispatches_and_writes_scores(
+    tmp_path: Path, monkeypatch, capsys
+) -> None:
+    scores_path = tmp_path / "preview_scores.csv"
+    rows = []
+    for i in range(30):
+        row: dict[str, float | int] = {col: 0.5 for col in FEATURE_CSV_COLUMNS}
+        row["frame_index"] = i
+        row["timestamp_seconds"] = i / 30.0
+        rows.append(row)
+    prediction = ModelPrediction(
+        window_id="w0",
+        timestamp_seconds=1.0,
+        scores=CognitiveScoreVector(
+            fatigue=0.1,
+            attention=0.2,
+            stress=0.3,
+            engagement=0.4,
+        ),
+        source_progress="1/1",
+    )
+
+    def fake_load_model(**kwargs):  # type: ignore[no-untyped-def]
+        return object()
+
+    def fake_preview(*args, emit_score=None, **kwargs):  # type: ignore[no-untyped-def]
+        if emit_score is not None:
+            emit_score(prediction)
+        return LivePreviewResult(rows=rows, predictions=[prediction])
+
+    monkeypatch.setattr(cli_module, "load_model", fake_load_model)
+    monkeypatch.setattr(cli_module, "run_webcam_preview", fake_preview)
+
+    exit_code = cli_module.main(
+        [
+            "infer",
+            "--webcam",
+            "0",
+            "--preview",
+            "--max-windows",
+            "1",
+            "--scores-csv",
+            str(scores_path),
+        ]
+    )
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "fatigue=0.100" in captured.out
+    assert scores_path.exists()
 
 
 # ---------------------------------------------------------------------------

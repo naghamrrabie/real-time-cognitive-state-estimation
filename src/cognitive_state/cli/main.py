@@ -27,9 +27,11 @@ from cognitive_state.inference import (
     DEFAULT_STRIDE,
     DEFAULT_WINDOW_SIZE,
     format_score_table,
+    format_score_line,
     load_model,
     run_inference,
 )
+from cognitive_state.inference.live_preview import LivePreviewResult, run_webcam_preview
 from cognitive_state.training.checkpoints import save_checkpoint
 from cognitive_state.training.metrics import SMOKE_METRIC_WARNING
 from cognitive_state.training.smoke_train import run_smoke_train
@@ -132,6 +134,14 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         metavar="N",
         help="Maximum number of windows to process.",
+    )
+    infer_parser.add_argument(
+        "--preview",
+        action="store_true",
+        help=(
+            "Open a live webcam preview window with landmark and score overlays. "
+            "Only valid with --webcam. Press Q or Esc to stop."
+        ),
     )
 
     # ------------------------------------------------------------------
@@ -266,6 +276,10 @@ def _run_infer(args: argparse.Namespace) -> int:
         )
         return 2
 
+    if args.preview and not has_webcam:
+        print("error: --preview is only supported with --webcam.", file=sys.stderr)
+        return 2
+
     if args.plot and not getattr(args, "plot_out", None):
         print(
             "warning: --plot requires --plot-out PATH; no plot will be generated.",
@@ -277,6 +291,9 @@ def _run_infer(args: argparse.Namespace) -> int:
             "warning: no --checkpoint provided; using random model weights.",
             file=sys.stderr,
         )
+
+    if args.preview and has_webcam:
+        return _run_webcam_preview_infer(args)
 
     # --- load feature rows ---
     rows: list[dict[str, float | int]] = []
@@ -357,6 +374,85 @@ def _run_infer(args: argparse.Namespace) -> int:
         try:
             from cognitive_state.inference.plotting import plot_scores
             saved = plot_scores(predictions, args.plot_out)
+            print(f"plot saved to {saved}")
+        except Exception as exc:
+            print(f"plot: {exc}", file=sys.stderr)
+            return 2
+
+    return 0
+
+
+def _run_webcam_preview_infer(args: argparse.Namespace) -> int:
+    """Run live webcam preview mode for the infer command."""
+
+    window_size = (
+        max(1, round(args.window_seconds * _ASSUME_FPS))
+        if args.window_seconds is not None
+        else DEFAULT_WINDOW_SIZE
+    )
+    stride = (
+        max(1, round(args.stride_seconds * _ASSUME_FPS))
+        if args.stride_seconds is not None
+        else DEFAULT_STRIDE
+    )
+
+    try:
+        model = load_model(
+            input_features=len(WINDOW_FEATURE_COLUMNS),
+            checkpoint_path=args.checkpoint if args.checkpoint else None,
+        )
+    except (OSError, RuntimeError) as exc:
+        print(f"checkpoint: {exc}", file=sys.stderr)
+        return 2
+
+    print("live preview open: press Q or Esc in the camera window to stop.")
+    print("  timestamp    progress    fatigue  attention    stress  engagement")
+
+    try:
+        result: LivePreviewResult = run_webcam_preview(
+            args.webcam,
+            model,
+            window_size=window_size,
+            stride=stride,
+            target_windows=args.max_windows,
+            emit_score=lambda prediction: print(
+                format_score_line(prediction),
+                flush=True,
+            ),
+        )
+    except (FeatureExportError, VideoSourceError) as exc:
+        print(f"source: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"file: {exc}", file=sys.stderr)
+        return 2
+    except (WindowShapeError, ValidationError) as exc:
+        print(f"inference: {exc}", file=sys.stderr)
+        return 2
+
+    if not result.rows:
+        print("error: no feature rows found.", file=sys.stderr)
+        return 2
+
+    if args.features_csv:
+        try:
+            write_feature_csv(result.rows, Path(args.features_csv))
+        except OSError as exc:
+            print(f"features-csv: {exc}", file=sys.stderr)
+            return 2
+
+    if args.scores_csv:
+        try:
+            write_score_csv(result.predictions, Path(args.scores_csv))
+        except OSError as exc:
+            print(f"scores-csv: {exc}", file=sys.stderr)
+            return 2
+
+    if args.plot and getattr(args, "plot_out", None):
+        try:
+            from cognitive_state.inference.plotting import plot_scores
+
+            saved = plot_scores(result.predictions, args.plot_out)
             print(f"plot saved to {saved}")
         except Exception as exc:
             print(f"plot: {exc}", file=sys.stderr)

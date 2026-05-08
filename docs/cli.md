@@ -39,6 +39,7 @@ cognitive-state infer [--video PATH | --webcam INDEX | --features-csv PATH]
                       [--plot [--plot-out PATH]]
                       [--window-seconds N] [--stride-seconds N]
                       [--max-windows N]
+                      [--preview]
 ```
 
 | Option | Description |
@@ -53,6 +54,7 @@ cognitive-state infer [--video PATH | --webcam INDEX | --features-csv PATH]
 | `--window-seconds N` | Window duration in seconds (default: 30 frames at inferred FPS). |
 | `--stride-seconds N` | Window stride in seconds (default: 15 frames at inferred FPS). |
 | `--max-windows N` | Cap the total number of windows processed. |
+| `--preview` | Open an OpenCV live camera window with landmark dots, detection status, and the latest scores. Only valid with `--webcam`; press `Q` or `Esc` to stop. |
 
 **Console output** — one line per window:
 

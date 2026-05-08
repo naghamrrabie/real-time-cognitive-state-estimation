@@ -71,6 +71,15 @@ cognitive-state infer `
 cognitive-state infer --webcam 0
 ```
 
+### Run live webcam preview
+
+```powershell
+cognitive-state infer --webcam 0 --preview
+```
+
+The preview window shows the camera feed, landmark dots, detection status, and
+the latest scores. Press `Q` or `Esc` in the preview window to stop.
+
 ### Smoke-train with synthetic labels
 
 ```powershell
