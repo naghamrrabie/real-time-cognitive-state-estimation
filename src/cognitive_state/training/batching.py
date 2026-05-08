@@ -1,4 +1,4 @@
-"""Training batch collation for grouped modalities (minimal stub for T052)."""
+"""Training batch collation for grouped modalities (T052)."""
 
 from __future__ import annotations
 
@@ -22,7 +22,13 @@ def collate_batch(samples: list[DatasetSample]) -> tuple[Tensor, Tensor]:
         - ``X``: float32 tensor of shape ``(batch_size, window_size, feature_dim)``
         - ``y``: float32 tensor of shape ``(batch_size, 4)`` with score values
           in the order ``fatigue, attention, stress, engagement``.
+
+    Raises:
+        ValueError: If ``samples`` is empty.
     """
+    if not samples:
+        raise ValueError("collate_batch requires at least one sample.")
+
     feature_stack = np.stack([s.features for s in samples], axis=0)
     label_stack = np.array(
         [
@@ -34,3 +40,7 @@ def collate_batch(samples: list[DatasetSample]) -> tuple[Tensor, Tensor]:
     x = torch.from_numpy(feature_stack.astype(np.float32))
     y = torch.from_numpy(label_stack)
     return x, y
+
+
+#: Drop-in ``collate_fn`` for ``torch.utils.data.DataLoader``.
+collate_fn = collate_batch

@@ -1,14 +1,18 @@
-"""Window-level dataset loader and validation (minimal stub for T050)."""
+"""Window-level dataset loader and validation (T050)."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from cognitive_state.data.constants import LABEL_SOURCES
 from cognitive_state.data.exceptions import LabelError, ValidationError
 from cognitive_state.data.schemas import CognitiveScoreVector
+
+if TYPE_CHECKING:
+    from cognitive_state.data.windowing import FeatureWindowBatch
 
 
 @dataclass
@@ -19,9 +23,8 @@ class DatasetSample:
         window_id: Unique identifier for the source window.
         features: Float32 array of shape ``(window_size, feature_dim)``.
         label: Four-score label vector for this window.
-        label_source: One of ``LABEL_SOURCES`` — ``"synthetic"``,
-            ``"placeholder"``, ``"real"``, or ``"missing"``.
-        split: Optional dataset split assignment.
+        label_source: One of ``LABEL_SOURCES``.
+        split: Optional dataset split tag (e.g. ``"train"``, ``"val"``).
     """
 
     window_id: str
@@ -42,10 +45,12 @@ class WindowDataset:
         labels: Exactly ``n_windows`` label vectors.
         label_source: Source tag applied to every sample.
         window_ids: Optional explicit window identifiers.
+        split: Optional split tag propagated to every sample.
 
     Raises:
         LabelError: If ``len(labels) != features.shape[0]``.
-        ValidationError: If ``label_source`` is not in ``LABEL_SOURCES``.
+        ValidationError: If ``features`` is not 3-dimensional or
+            ``label_source`` is not in ``LABEL_SOURCES``.
     """
 
     def __init__(
@@ -55,7 +60,13 @@ class WindowDataset:
         *,
         label_source: str = "synthetic",
         window_ids: list[str] | None = None,
+        split: str | None = None,
     ) -> None:
+        if features.ndim != 3:
+            raise ValidationError(
+                f"features must be a 3-D array (n_windows, window_size, feature_dim); "
+                f"got ndim={features.ndim}."
+            )
         if features.shape[0] != len(labels):
             raise LabelError(
                 f"Feature window count ({features.shape[0]}) does not match "
@@ -69,10 +80,43 @@ class WindowDataset:
         self._features = features.astype(np.float32)
         self._labels = labels
         self._label_source = label_source
+        self._split = split
         self._window_ids = (
             window_ids if window_ids is not None
             else [f"w{i}" for i in range(len(labels))]
         )
+
+    # ------------------------------------------------------------------
+    # Convenience constructor
+    # ------------------------------------------------------------------
+
+    @classmethod
+    def from_feature_batch(
+        cls,
+        batch: "FeatureWindowBatch",
+        labels: list[CognitiveScoreVector],
+        *,
+        label_source: str = "synthetic",
+        split: str | None = None,
+    ) -> "WindowDataset":
+        """Construct a dataset directly from a :class:`FeatureWindowBatch`.
+
+        Args:
+            batch: Pre-built window batch produced by :func:`build_windows`.
+            labels: One label per window in ``batch``.
+            label_source: Source tag for all samples.
+            split: Optional split tag.
+        """
+        return cls(
+            batch.features,
+            labels,
+            label_source=label_source,
+            split=split,
+        )
+
+    # ------------------------------------------------------------------
+    # Sequence protocol
+    # ------------------------------------------------------------------
 
     def __len__(self) -> int:
         return len(self._labels)
@@ -83,6 +127,7 @@ class WindowDataset:
             features=self._features[idx],
             label=self._labels[idx],
             label_source=self._label_source,
+            split=self._split,
         )
 
     def __iter__(self):  # type: ignore[override]
