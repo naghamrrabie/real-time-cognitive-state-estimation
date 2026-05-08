@@ -61,7 +61,7 @@ between 0.00 and 1.00.
 
 - [X] T013 [P] [US1] Create webcam/video source tests in `tests/unit/test_video_sources.py`
 - [X] T014 [P] [US1] Create frame timing tests for live-paced and offline modes in `tests/unit/test_frame_timing.py`
-- [ ] T015 [P] [US1] Create MediaPipe landmark extractor tests with mocked face-only, pose-only, and missing-landmark results in `tests/unit/test_landmark_extractor.py`
+- [X] T015 [P] [US1] Create MediaPipe landmark extractor tests with mocked face-only, pose-only, and missing-landmark results in `tests/unit/test_landmark_extractor.py`
 - [ ] T016 [P] [US1] Create eye, face, head, and posture feature utility tests in `tests/unit/test_feature_extractors.py`
 - [ ] T017 [P] [US1] Create Temporal Transformer model shape tests in `tests/unit/test_temporal_transformer.py`
 - [ ] T018 [P] [US1] Create score bounding and console output tests in `tests/unit/test_inference_output.py`
@@ -73,7 +73,7 @@ between 0.00 and 1.00.
 - [X] T021 [US1] Implement `VideoSource` and source metadata models in `src/cognitive_state/video/sources.py`
 - [X] T022 [US1] Implement webcam live-paced frame reader and video-file offline frame reader in `src/cognitive_state/video/readers.py`
 - [X] T023 [US1] Implement frame timing and source progress helpers in `src/cognitive_state/video/timing.py`
-- [ ] T024 [US1] Implement MediaPipe Face Mesh and Pose extractor wrapper in `src/cognitive_state/features/landmarks.py`
+- [X] T024 [US1] Implement MediaPipe Face Mesh and Pose extractor wrapper in `src/cognitive_state/features/landmarks.py`
 - [ ] T025 [US1] Implement eye feature calculations including EAR and gaze proxy values in `src/cognitive_state/features/eyes.py`
 - [ ] T026 [US1] Implement face feature calculations including mouth openness and landmark-distance proxies in `src/cognitive_state/features/face.py`
 - [ ] T027 [US1] Implement head pose and posture proxy feature calculations in `src/cognitive_state/features/posture.py`
