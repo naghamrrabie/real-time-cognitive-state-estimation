@@ -63,8 +63,8 @@ between 0.00 and 1.00.
 - [X] T014 [P] [US1] Create frame timing tests for live-paced and offline modes in `tests/unit/test_frame_timing.py`
 - [X] T015 [P] [US1] Create MediaPipe landmark extractor tests with mocked face-only, pose-only, and missing-landmark results in `tests/unit/test_landmark_extractor.py`
 - [X] T016 [P] [US1] Create eye, face, head, and posture feature utility tests in `tests/unit/test_feature_extractors.py`
-- [ ] T017 [P] [US1] Create Temporal Transformer model shape tests in `tests/unit/test_temporal_transformer.py`
-- [ ] T018 [P] [US1] Create score bounding and console output tests in `tests/unit/test_inference_output.py`
+- [X] T017 [P] [US1] Create Temporal Transformer model shape tests in `tests/unit/test_temporal_transformer.py`
+- [X] T018 [P] [US1] Create score bounding and console output tests in `tests/unit/test_inference_output.py`
 - [ ] T019 [US1] Create end-to-end inference integration test for sample video input in `tests/integration/test_infer_pipeline.py`
 - [ ] T020 [US1] Create CLI contract test for `cognitive-state infer` in `tests/integration/test_infer_cli.py`
 
