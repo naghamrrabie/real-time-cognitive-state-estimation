@@ -62,7 +62,7 @@ between 0.00 and 1.00.
 - [X] T013 [P] [US1] Create webcam/video source tests in `tests/unit/test_video_sources.py`
 - [X] T014 [P] [US1] Create frame timing tests for live-paced and offline modes in `tests/unit/test_frame_timing.py`
 - [X] T015 [P] [US1] Create MediaPipe landmark extractor tests with mocked face-only, pose-only, and missing-landmark results in `tests/unit/test_landmark_extractor.py`
-- [ ] T016 [P] [US1] Create eye, face, head, and posture feature utility tests in `tests/unit/test_feature_extractors.py`
+- [X] T016 [P] [US1] Create eye, face, head, and posture feature utility tests in `tests/unit/test_feature_extractors.py`
 - [ ] T017 [P] [US1] Create Temporal Transformer model shape tests in `tests/unit/test_temporal_transformer.py`
 - [ ] T018 [P] [US1] Create score bounding and console output tests in `tests/unit/test_inference_output.py`
 - [ ] T019 [US1] Create end-to-end inference integration test for sample video input in `tests/integration/test_infer_pipeline.py`
@@ -74,10 +74,10 @@ between 0.00 and 1.00.
 - [X] T022 [US1] Implement webcam live-paced frame reader and video-file offline frame reader in `src/cognitive_state/video/readers.py`
 - [X] T023 [US1] Implement frame timing and source progress helpers in `src/cognitive_state/video/timing.py`
 - [X] T024 [US1] Implement MediaPipe Face Mesh and Pose extractor wrapper in `src/cognitive_state/features/landmarks.py`
-- [ ] T025 [US1] Implement eye feature calculations including EAR and gaze proxy values in `src/cognitive_state/features/eyes.py`
-- [ ] T026 [US1] Implement face feature calculations including mouth openness and landmark-distance proxies in `src/cognitive_state/features/face.py`
-- [ ] T027 [US1] Implement head pose and posture proxy feature calculations in `src/cognitive_state/features/posture.py`
-- [ ] T028 [US1] Implement multimodal feature extraction orchestrator with missing-value markers in `src/cognitive_state/features/pipeline.py`
+- [X] T025 [US1] Implement eye feature calculations including EAR and gaze proxy values in `src/cognitive_state/features/eyes.py`
+- [X] T026 [US1] Implement face feature calculations including mouth openness and landmark-distance proxies in `src/cognitive_state/features/face.py`
+- [X] T027 [US1] Implement head pose and posture proxy feature calculations in `src/cognitive_state/features/posture.py`
+- [X] T028 [US1] Implement multimodal feature extraction orchestrator with missing-value markers in `src/cognitive_state/features/pipeline.py`
 - [ ] T029 [US1] Implement temporal feature window builder for inference windows in `src/cognitive_state/data/windowing.py`
 - [ ] T030 [US1] Implement attention-based or modular modality fusion layer in `src/cognitive_state/models/fusion.py`
 - [ ] T031 [US1] Implement Temporal Transformer Encoder regression model with four-score output in `src/cognitive_state/models/transformer.py`
