@@ -38,6 +38,7 @@ from cognitive_state.data.windowing import (
     WINDOW_FEATURE_COLUMNS,
     FeatureWindowBatch,
     WindowMetadata,
+    WindowMissingSummary,
     build_windows,
 )
 
@@ -62,6 +63,7 @@ __all__ = [
     "ScoreRangeError",
     "ValidationError",
     "WindowMetadata",
+    "WindowMissingSummary",
     "WindowShapeError",
     "build_windows",
     "read_feature_csv",

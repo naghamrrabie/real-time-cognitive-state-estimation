@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import numpy as np
 
@@ -29,6 +29,37 @@ class WindowMetadata:
     end_time: float
 
 
+@dataclass(frozen=True)
+class WindowMissingSummary:
+    """Per-window count of frames where face or pose landmarks were absent.
+
+    Attributes:
+        window_index: Zero-based index of the window within the batch.
+        total_frames: Number of frames in the window.
+        face_missing_frames: Frames where ``face_detected`` was falsy.
+        pose_missing_frames: Frames where ``pose_detected`` was falsy.
+    """
+
+    window_index: int
+    total_frames: int
+    face_missing_frames: int
+    pose_missing_frames: int
+
+    @property
+    def face_missing_rate(self) -> float:
+        """Fraction of frames with missing face landmarks."""
+        if self.total_frames == 0:
+            return 0.0
+        return self.face_missing_frames / self.total_frames
+
+    @property
+    def pose_missing_rate(self) -> float:
+        """Fraction of frames with missing pose landmarks."""
+        if self.total_frames == 0:
+            return 0.0
+        return self.pose_missing_frames / self.total_frames
+
+
 @dataclass
 class FeatureWindowBatch:
     """All temporal windows produced from a single ordered feature sequence.
@@ -39,6 +70,8 @@ class FeatureWindowBatch:
         feature_names: Ordered column names matching the last axis of *features*.
         window_size: Number of timesteps per window.
         stride: Frame advance between consecutive window start positions.
+        missing_summary: Per-window missing-landmark summary, one entry per
+            window in the same order as *metadata*.
     """
 
     features: np.ndarray
@@ -46,6 +79,7 @@ class FeatureWindowBatch:
     feature_names: tuple[str, ...]
     window_size: int
     stride: int
+    missing_summary: list[WindowMissingSummary] = field(default_factory=list)
 
     @property
     def n_windows(self) -> int:
@@ -123,6 +157,7 @@ def build_windows(
     n_rows = len(rows)
     windows: list[np.ndarray] = []
     meta: list[WindowMetadata] = []
+    missing: list[WindowMissingSummary] = []
 
     start = 0
     window_idx = 0
@@ -136,6 +171,21 @@ def build_windows(
                 end_frame=frame_indices[end - 1],
                 start_time=timestamps[start],
                 end_time=timestamps[end - 1],
+            )
+        )
+        window_rows = rows[start:end]
+        face_m = sum(
+            1 for r in window_rows if float(r.get("face_detected", 1.0)) < 0.5
+        )
+        pose_m = sum(
+            1 for r in window_rows if float(r.get("pose_detected", 1.0)) < 0.5
+        )
+        missing.append(
+            WindowMissingSummary(
+                window_index=window_idx,
+                total_frames=end - start,
+                face_missing_frames=face_m,
+                pose_missing_frames=pose_m,
             )
         )
         start += stride
@@ -153,4 +203,5 @@ def build_windows(
         feature_names=names,
         window_size=window_size,
         stride=stride,
+        missing_summary=missing,
     )
