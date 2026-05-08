@@ -26,3 +26,23 @@ def format_score_line(prediction: ModelPrediction) -> str:
         f"  stress={s.stress:.3f}"
         f"  engagement={s.engagement:.3f}"
     )
+
+
+def format_header() -> str:
+    """Return a column header line for console score output."""
+    return (
+        "  timestamp    progress"
+        "    fatigue  attention    stress  engagement"
+    )
+
+
+def format_score_table(predictions: list[ModelPrediction]) -> str:
+    """Return all predictions as a multi-line console table with header.
+
+    Returns a ``(no predictions)`` placeholder when the list is empty.
+    """
+    if not predictions:
+        return "(no predictions)"
+    lines = [format_header()]
+    lines.extend(format_score_line(p) for p in predictions)
+    return "\n".join(lines)
