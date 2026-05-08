@@ -1,0 +1,55 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Project generated artifacts
+artifacts/
+outputs/
+logs/
+
+# Data files
+data/raw/
+data/processed/
+*.csv
+*.xlsx
+*.jsonl
+
+# Videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Model files / checkpoints
+models/
+checkpoints/
+*.pt
+*.pth
+*.onnx
+*.ckpt
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -29,13 +29,14 @@ C:\Users\TheExpert\.local\bin\uv.exe pip install -e .
 C:\Users\TheExpert\.local\bin\uv.exe run pytest
 ```
 
-## CLI Placeholder
+## CLI
 
 ```powershell
 C:\Users\TheExpert\.local\bin\uv.exe run python -m cognitive_state.cli.main --help
 C:\Users\TheExpert\.local\bin\uv.exe run cognitive-state --help
+C:\Users\TheExpert\.local\bin\uv.exe run cognitive-state extract-features --video path\to\sample.mp4 --output artifacts\features.csv --max-frames 20
 ```
 
-The CLI currently exposes only scaffold metadata. Future Spec Kit tasks will add
-feature extraction, smoke-training, inference, CSV export, and plotting
-commands.
+The CLI currently supports per-frame feature CSV export from video files.
+Future Spec Kit tasks will add dataset windowing, smoke-training, inference,
+score CSV export, and plotting commands.

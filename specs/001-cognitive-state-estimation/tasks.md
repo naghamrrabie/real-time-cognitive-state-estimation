@@ -102,18 +102,18 @@ with timestamps and missing-value indicators.
 
 ### Tests for User Story 2
 
-- [ ] T036 [P] [US2] Create feature CSV schema tests in `tests/unit/test_feature_csv.py`
+- [X] T036 [P] [US2] Create feature CSV schema tests in `tests/unit/test_feature_csv.py`
 - [ ] T037 [P] [US2] Create feature window validation tests in `tests/unit/test_windowing.py`
 - [ ] T038 [P] [US2] Create missing-landmark summary tests in `tests/unit/test_missing_summary.py`
-- [ ] T039 [US2] Create CLI contract test for `cognitive-state extract-features` in `tests/integration/test_extract_features_cli.py`
+- [X] T039 [US2] Create CLI contract test for `cognitive-state extract-features` in `tests/integration/test_extract_features_cli.py`
 
 ### Implementation for User Story 2
 
-- [ ] T040 [US2] Implement feature CSV writer and reader in `src/cognitive_state/data/feature_csv.py`
+- [X] T040 [US2] Implement feature CSV writer and reader in `src/cognitive_state/data/feature_csv.py`
 - [ ] T041 [US2] Implement per-window missing-value summaries in `src/cognitive_state/features/missing.py`
 - [ ] T042 [US2] Extend feature window metadata and validation in `src/cognitive_state/data/windowing.py`
-- [ ] T043 [US2] Implement feature extraction service for reusable window generation in `src/cognitive_state/features/export.py`
-- [ ] T044 [US2] Implement `cognitive-state extract-features` CLI command in `src/cognitive_state/cli/main.py`
+- [X] T043 [US2] Implement feature extraction service for reusable window generation in `src/cognitive_state/features/export.py`
+- [X] T044 [US2] Implement `cognitive-state extract-features` CLI command in `src/cognitive_state/cli/main.py`
 
 **Checkpoint**: US2 is complete when feature windows can be generated and
 optionally exported to CSV without running model inference.
