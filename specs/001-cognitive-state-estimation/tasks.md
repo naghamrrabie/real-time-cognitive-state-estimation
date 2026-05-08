@@ -185,12 +185,12 @@ schema-valid, and never required for the core console inference workflow.
 **Purpose**: Documentation, final validation, and cleanup across the MVP.
 
 - [X] T066 [P] Write project overview, setup, and CLI examples in `README.md`
-- [ ] T067 [P] Document CLI command details and output schemas in `docs/cli.md`
-- [ ] T068 [P] Document synthetic/demo label limitations in `docs/research_notes.md`
-- [ ] T069 [P] Document test fixture usage in `tests/fixtures/README.md`
-- [ ] T070 Run the full pytest suite for `tests/` and record the validation command in `README.md`
-- [ ] T071 Review CLI help text and synthetic-label warnings in `src/cognitive_state/cli/main.py`
-- [ ] T072 Review dependency list and console script entry point in `pyproject.toml`
+- [X] T067 [P] Document CLI command details and output schemas in `docs/cli.md`
+- [X] T068 [P] Document synthetic/demo label limitations in `docs/research_notes.md`
+- [X] T069 [P] Document test fixture usage in `tests/fixtures/README.md`
+- [X] T070 Run the full pytest suite for `tests/` and record the validation command in `README.md`
+- [X] T071 Review CLI help text and synthetic-label warnings in `src/cognitive_state/cli/main.py`
+- [X] T072 Review dependency list and console script entry point in `pyproject.toml`
 
 ---
 

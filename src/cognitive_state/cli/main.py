@@ -44,7 +44,12 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser = argparse.ArgumentParser(
         prog="cognitive-state",
-        description="Scaffold CLI for cognitive state estimation.",
+        description=(
+            "Estimate cognitive state scores (fatigue, attention, stress, engagement) "
+            "from video or webcam input using a Temporal Transformer model.\n\n"
+            "NOTE: the model currently uses random weights — no real labelled data "
+            "has been collected yet.  See docs/research_notes.md."
+        ),
     )
     parser.add_argument(
         "--version",
