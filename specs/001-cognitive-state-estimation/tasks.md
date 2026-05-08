@@ -84,7 +84,7 @@ between 0.00 and 1.00.
 - [X] T032 [US1] Implement score bounding and prediction formatting in `src/cognitive_state/inference/scoring.py`
 - [X] T033 [US1] Implement end-to-end inference pipeline from source to console-ready predictions in `src/cognitive_state/inference/pipeline.py`
 - [X] T034 [US1] Implement console score table/stream formatter in `src/cognitive_state/inference/output.py`
-- [ ] T035 [US1] Implement `cognitive-state infer` CLI command and argument validation in `src/cognitive_state/cli/main.py`
+- [X] T035 [US1] Implement `cognitive-state infer` CLI command and argument validation in `src/cognitive_state/cli/main.py`
 
 **Checkpoint**: US1 is complete when video-file and webcam inference paths
 produce bounded console scores without requiring CSV, plots, or real labels.

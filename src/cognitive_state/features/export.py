@@ -11,7 +11,7 @@ from typing import Protocol
 from cognitive_state.data.feature_csv import write_feature_csv
 from cognitive_state.features.landmarks import LandmarkSet, MediaPipeLandmarkExtractor
 from cognitive_state.features.pipeline import extract_frame_features
-from cognitive_state.video import VideoFrame, iter_video_file
+from cognitive_state.video import VideoFrame, iter_video_file, iter_webcam
 
 
 class LandmarkExtractor(Protocol):
@@ -77,6 +77,34 @@ def extract_features_from_video(
         rows_written=rows_written,
         face_detected_frames=counted_rows.face_detected_frames,
         pose_detected_frames=counted_rows.pose_detected_frames,
+    )
+
+
+def iter_feature_rows_from_video(
+    video_path: str | Path,
+    *,
+    max_frames: int | None = None,
+) -> Iterator[dict[str, float | int]]:
+    """Yield per-frame feature rows from a video file without writing to CSV."""
+    yield from _iter_feature_rows(
+        Path(video_path),
+        max_frames=max_frames,
+        frame_reader=iter_video_file,
+        extractor_factory=MediaPipeLandmarkExtractor,
+    )
+
+
+def iter_feature_rows_from_webcam(
+    index: int = 0,
+    *,
+    max_frames: int | None = None,
+) -> Iterator[dict[str, float | int]]:
+    """Yield per-frame feature rows from a webcam device without writing to CSV."""
+    yield from _iter_feature_rows(
+        Path("."),
+        max_frames=max_frames,
+        frame_reader=lambda _: iter_webcam(index),
+        extractor_factory=MediaPipeLandmarkExtractor,
     )
 
 
