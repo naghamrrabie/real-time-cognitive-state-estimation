@@ -34,6 +34,12 @@ from cognitive_state.data.validation import (
     validate_score_vector,
     validate_window_shape,
 )
+from cognitive_state.data.windowing import (
+    WINDOW_FEATURE_COLUMNS,
+    FeatureWindowBatch,
+    WindowMetadata,
+    build_windows,
+)
 
 __all__ = [
     "DATASET_SPLITS",
@@ -45,15 +51,19 @@ __all__ = [
     "SCORE_MAX",
     "SCORE_MIN",
     "SCORE_NAMES",
+    "WINDOW_FEATURE_COLUMNS",
     "CognitiveStateError",
     "CognitiveScoreVector",
+    "FeatureWindowBatch",
     "FiniteValueError",
     "LabelError",
     "ModalityError",
     "ModelPrediction",
     "ScoreRangeError",
     "ValidationError",
+    "WindowMetadata",
     "WindowShapeError",
+    "build_windows",
     "read_feature_csv",
     "validate_finite",
     "validate_modality_name",
