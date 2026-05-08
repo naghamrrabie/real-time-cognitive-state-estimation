@@ -35,13 +35,13 @@ configuration.
 **Purpose**: Define shared schemas, constants, exceptions, and fixtures used by
 all stories. This phase MUST be complete before any user story work begins.
 
-- [ ] T006 [P] Create score schema tests for four bounded scores in `tests/unit/test_score_schema.py`
-- [ ] T007 [P] Create shared fixture helpers for synthetic frames, landmarks, feature windows, and labels in `tests/fixtures/synthetic_data.py`
-- [ ] T008 [P] Create package-wide exception tests in `tests/unit/test_exceptions.py`
-- [ ] T009 Implement cognitive score and prediction dataclasses in `src/cognitive_state/data/schemas.py`
-- [ ] T010 Implement shared modality, score, and CSV column constants in `src/cognitive_state/data/constants.py`
-- [ ] T011 Implement domain-specific exceptions in `src/cognitive_state/data/exceptions.py`
-- [ ] T012 Implement validation helpers for finite values, score ranges, and modality names in `src/cognitive_state/data/validation.py`
+- [X] T006 [P] Create score schema tests for four bounded scores in `tests/unit/test_score_schema.py`
+- [X] T007 [P] Create shared fixture helpers for synthetic frames, landmarks, feature windows, and labels in `tests/fixtures/synthetic_data.py`
+- [X] T008 [P] Create package-wide exception tests in `tests/unit/test_exceptions.py`
+- [X] T009 Implement cognitive score and prediction dataclasses in `src/cognitive_state/data/schemas.py`
+- [X] T010 Implement shared modality, score, and CSV column constants in `src/cognitive_state/data/constants.py`
+- [X] T011 Implement domain-specific exceptions in `src/cognitive_state/data/exceptions.py`
+- [X] T012 Implement validation helpers for finite values, score ranges, and modality names in `src/cognitive_state/data/validation.py`
 
 **Checkpoint**: Shared schemas and validation utilities are ready for video,
 features, model, inference, and CLI modules.
