@@ -22,11 +22,11 @@ implemented and tested independently after foundational prerequisites are done.
 **Purpose**: Create the Python package skeleton, dependency metadata, and test
 configuration.
 
-- [ ] T001 Create package metadata and Python 3.11+ project configuration in `pyproject.toml`
-- [ ] T002 Add runtime and development dependencies in `requirements.txt` and `requirements-dev.txt`
-- [ ] T003 Create package entry files in `src/cognitive_state/__init__.py`, `src/cognitive_state/video/__init__.py`, `src/cognitive_state/features/__init__.py`, `src/cognitive_state/data/__init__.py`, `src/cognitive_state/models/__init__.py`, `src/cognitive_state/training/__init__.py`, `src/cognitive_state/inference/__init__.py`, and `src/cognitive_state/cli/__init__.py`
-- [ ] T004 Configure pytest discovery and import paths in `pyproject.toml`
-- [ ] T005 Create artifact directory policy in `artifacts/.gitignore`
+- [X] T001 Create package metadata and Python 3.11+ project configuration in `pyproject.toml`
+- [X] T002 Add runtime and development dependencies in `requirements.txt` and `requirements-dev.txt`
+- [X] T003 Create package entry files in `src/cognitive_state/__init__.py`, `src/cognitive_state/video/__init__.py`, `src/cognitive_state/features/__init__.py`, `src/cognitive_state/data/__init__.py`, `src/cognitive_state/models/__init__.py`, `src/cognitive_state/training/__init__.py`, `src/cognitive_state/inference/__init__.py`, and `src/cognitive_state/cli/__init__.py`
+- [X] T004 Configure pytest discovery and import paths in `pyproject.toml`
+- [X] T005 Create artifact directory policy in `artifacts/.gitignore`
 
 ---
 
@@ -59,8 +59,8 @@ between 0.00 and 1.00.
 
 ### Tests for User Story 1
 
-- [ ] T013 [P] [US1] Create webcam/video source tests in `tests/unit/test_video_sources.py`
-- [ ] T014 [P] [US1] Create frame timing tests for live-paced and offline modes in `tests/unit/test_frame_timing.py`
+- [X] T013 [P] [US1] Create webcam/video source tests in `tests/unit/test_video_sources.py`
+- [X] T014 [P] [US1] Create frame timing tests for live-paced and offline modes in `tests/unit/test_frame_timing.py`
 - [ ] T015 [P] [US1] Create MediaPipe landmark extractor tests with mocked face-only, pose-only, and missing-landmark results in `tests/unit/test_landmark_extractor.py`
 - [ ] T016 [P] [US1] Create eye, face, head, and posture feature utility tests in `tests/unit/test_feature_extractors.py`
 - [ ] T017 [P] [US1] Create Temporal Transformer model shape tests in `tests/unit/test_temporal_transformer.py`
@@ -70,9 +70,9 @@ between 0.00 and 1.00.
 
 ### Implementation for User Story 1
 
-- [ ] T021 [US1] Implement `VideoSource` and source metadata models in `src/cognitive_state/video/sources.py`
-- [ ] T022 [US1] Implement webcam live-paced frame reader and video-file offline frame reader in `src/cognitive_state/video/readers.py`
-- [ ] T023 [US1] Implement frame timing and source progress helpers in `src/cognitive_state/video/timing.py`
+- [X] T021 [US1] Implement `VideoSource` and source metadata models in `src/cognitive_state/video/sources.py`
+- [X] T022 [US1] Implement webcam live-paced frame reader and video-file offline frame reader in `src/cognitive_state/video/readers.py`
+- [X] T023 [US1] Implement frame timing and source progress helpers in `src/cognitive_state/video/timing.py`
 - [ ] T024 [US1] Implement MediaPipe Face Mesh and Pose extractor wrapper in `src/cognitive_state/features/landmarks.py`
 - [ ] T025 [US1] Implement eye feature calculations including EAR and gaze proxy values in `src/cognitive_state/features/eyes.py`
 - [ ] T026 [US1] Implement face feature calculations including mouth openness and landmark-distance proxies in `src/cognitive_state/features/face.py`
@@ -184,7 +184,7 @@ schema-valid, and never required for the core console inference workflow.
 
 **Purpose**: Documentation, final validation, and cleanup across the MVP.
 
-- [ ] T066 [P] Write project overview, setup, and CLI examples in `README.md`
+- [X] T066 [P] Write project overview, setup, and CLI examples in `README.md`
 - [ ] T067 [P] Document CLI command details and output schemas in `docs/cli.md`
 - [ ] T068 [P] Document synthetic/demo label limitations in `docs/research_notes.md`
 - [ ] T069 [P] Document test fixture usage in `tests/fixtures/README.md`

@@ -6,16 +6,15 @@ require real cognitive-state labels.
 ## 1. Create Environment
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install opencv-python mediapipe numpy pandas torch scikit-learn matplotlib pytest
+C:\Users\TheExpert\.local\bin\uv.exe pip install -r requirements.txt
+C:\Users\TheExpert\.local\bin\uv.exe pip install -r requirements-dev.txt
+C:\Users\TheExpert\.local\bin\uv.exe pip install -e .
 ```
 
 ## 2. Run Tests
 
 ```powershell
-pytest
+C:\Users\TheExpert\.local\bin\uv.exe run pytest
 ```
 
 Expected result:

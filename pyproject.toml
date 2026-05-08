@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cognitive-state"
+version = "0.1.0"
+description = "Real-time cognitive state estimation from webcam or video input."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "opencv-python",
+    "mediapipe",
+    "numpy",
+    "pandas",
+    "torch",
+    "scikit-learn",
+    "matplotlib",
+]
+
+[project.scripts]
+cognitive-state = "cognitive_state.cli.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-q"
